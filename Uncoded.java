@@ -18,6 +18,8 @@ public class Uncoded {
 
   double [][] myA = new double[rowA][colA];
   double [][] myX = new double[rowX][colX];
+  double [][] A1 = new double[rowA/2][colA];
+  double [][] A2 = new double[rowX/2][colX];
   Random rand = new Random();
 
   /* Takes in myA and myX input and outputs '' for Reducer*/
@@ -54,11 +56,28 @@ public class Uncoded {
       }
     }*/
   }
+
+  //splits myA into A1 and A2
+  public void partition() {
+    for (int  i = 0; i < rowA / 2; i++){
+      for(int j = 0; j < colA; j++){
+        A1[i][j] = myA[i][j];
+      }
+    }
+
+    for (int  i = rowA/2 ; i < rowA; i++){
+      for(int j = 0; j < colA; j++){
+        A2[i][j] = myA[i][j];
+      }
+    }
+  }
+
+
   //main
   public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
-    String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-    if (otherArgs.length < 2) {
+    //String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+    if (otherArgs.length > 100) { //NOP
       System.err.println("Usage: wordcount <in> [<in>...] <out>");
       System.exit(2);
     }
@@ -66,6 +85,7 @@ public class Uncoded {
     //instantiation arrays
     Uncoded myUncoded =new Uncoded();
     myUncoded.setArray();
+    Uncoded.partition();
     long mytime = System.currentTimeMillis();
     System.out.println(mytime);
 
