@@ -61,6 +61,8 @@ public class Uncoded {
     myX = arrayMaker(rowX,colX);
     A1 = partition(true);
     A2 = partition(false);
+
+    double[][]product =  multiplier(A1,myX);
   /*  System.out.println(myA[0][0]);
     System.out.println(A1[0][0]);
     System.out.println(myA[499][999]);
@@ -71,14 +73,25 @@ public class Uncoded {
     System.out.println(A2[499][999]);
     */
     //for debugging
+    System.out.println("---A1----");
+    for (int i = 0; i < A1.length; i++){
+      for(int j = 0; j < A1[0].length; j++){
+        System.out.print(i +" "+ j+": ");
+        System.out.println(A1[i][j]);
+      }
+    }
+    System.out.println("---X----");
     for (int i = 0; i < rowX; i++){
       for(int j = 0; j < colX; j++){
+        System.out.print(i +" "+ j+": ");
         System.out.println(myX[i][j]);
       }
     }
-    for (int i = 0; i < rowA; i++){
-      for(int j = 0; j < colA; j++){
-        System.out.println(myA[i][j]);
+    System.out.println("---A1*X----");
+    for (int i = 0; i < rowX/2; i++){
+      for(int j = 0; j < colX; j++){
+        System.out.print(i +" "+ j+": ");
+        System.out.println(product[i][j]);
       }
     }
   }
@@ -124,7 +137,7 @@ public class Uncoded {
     Uncoded myUncoded =new Uncoded();
     myUncoded.setArray();
     long mytime = System.currentTimeMillis();
-    multiplier(myA,myX);
+
     System.out.println(mytime);
 
 /*
