@@ -1,5 +1,5 @@
 import java.util.Random;
-/*
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.IntWritable;
@@ -8,7 +8,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.util.GenericOptionsParser;
-*/
+
 public class Uncoded {
 //constant instantiations
   public static final int rowA = 2;
@@ -20,29 +20,34 @@ public class Uncoded {
   double [][] myX = new double[rowX][colX];
   double [][] A1 = new double[(rowA/2) + 1][colA];
   double [][] A2 = new double[(rowX/2) + 1][colX];
+
   Random rand = new Random();
-/*
+
   //Takes in myA and myX input and outputs '' for Reducer
   public static class Uncoded_map
-   extends Mapper<Object, Text, Text, IntWritable> {
+      extends Mapper<IntWritable, ArrayWritable, ArrayWritable, ArrayWritable> {
+            //(KeyIn (index), ValueIn(Ai), KeyOut(Set),  ValueOut(Product))
+        private final static mapOutSet = new int [];
+        public void map(IntWritable key, ArrayWritable value, ArrayWritable context
+    ) throws IOException, InterruptedException {
 
-  private final static mapOutSet = new int [];
-  public void map(Object key, Text value, Context context
-                    ) throws IOException, InterruptedException {
 
-
+    }
   }
 
-*/
+
 // Receives output of Mapper and returns execution count
-/*  public static class Uncoded_red
-  extends Reducer<Text,IntWritable,Text,IntWritable> {
+  public static class Uncoded_red
+    extends Reducer<ArrayWritable, ArrayWritable, LongWritable, ArrayWritable> {
+              //KeyIn(Set)  ValueIn(List of A) ValueOut(Ex_time) ValueOut(AX)
+      public void reduce(ArrayWritable key, Iterable<IntWritable> values,
+                         Context context
+                         ) throws IOException, InterruptedException {
+
+                         }
+
 
   }
-
-
-  }
-*/
 
 //Generates row x col doubles from [0,1)
   public double[][] arrayMaker(int row, int col) {
@@ -63,7 +68,8 @@ public class Uncoded {
     A2 = partition(false);
 
     double[][]product =  multiplier(A1,myX);
-  /*  System.out.println(myA[0][0]);
+  /* //for debugging partition
+    System.out.println(myA[0][0]);
     System.out.println(A1[0][0]);
     System.out.println(myA[499][999]);
     System.out.println(A1[499][999]);
@@ -72,8 +78,8 @@ public class Uncoded {
     System.out.println(myA[999][999]);
     System.out.println(A2[499][999]);
     */
-    //for debugging
-    System.out.println("---A1----");
+    //for debugging Multiplier
+    /*System.out.println("---A1----");
     for (int i = 0; i < A1.length; i++){
       for(int j = 0; j < A1[0].length; j++){
         System.out.print(i +" "+ j+": ");
@@ -94,8 +100,9 @@ public class Uncoded {
         System.out.println(product[i][j]);
       }
     }
-  }
-  //matrix multiplication
+  }*/
+
+  //performs matrix multiplication
   public double[][] multiplier(double[][] one, double[][] two){
     double[][] temp = new double[rowA/2][colX];
     for(int i = 0; i < one.length; i++){
@@ -126,7 +133,7 @@ public class Uncoded {
 
   //main
   public static void main(String[] args) throws Exception {
-    //Configuration conf = new Configuration();
+    Configuration conf = new Configuration();
     //String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
   /*  if (otherArgs.length > 100) { //NOP
       System.err.println("Usage: wordcount <in> [<in>...] <out>");
@@ -140,7 +147,7 @@ public class Uncoded {
 
     System.out.println(mytime);
 
-/*
+
     Job job = Job.getInstance(conf);
     job.setJobName("Uncoded");
     job.setJarByClass(Uncoded.class);
@@ -148,6 +155,6 @@ public class Uncoded {
     job.setReducerClass(Uncoded_red.class);
   //  job.setOutputKeyClass(sumthin.class);
   //  job.setOutputValueClass(sumthin.class);
-*/
+
   }
 }
