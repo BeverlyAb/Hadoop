@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.Arrays;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -15,11 +16,13 @@ public class Uncoded {
   public static final int colA = 2;
   public static final int rowX = 2;
   public static final int colX = 1;
+  long myTime = 0;
 
   double [][] myA = new double[rowA][colA];
   double [][] myX = new double[rowX][colX];
   double [][] A1 = new double[(rowA/2) + 1][colA];
   double [][] A2 = new double[(rowX/2) + 1][colX];
+  double [][] A3 = new double[(rowX/2) + 1][colX];
 
   Random rand = new Random();
 
@@ -28,19 +31,28 @@ public class Uncoded {
       extends Mapper<IntWritable, ArrayWritable, ArrayWritable, ArrayWritable> {
             //(KeyIn (index), ValueIn(Ai), KeyOut(Set),  ValueOut(Product))
         private final static mapOutSet = new int [];
-        public void map(IntWritable key, ArrayWritable value, ArrayWritable context
+        public void map(IntWritable key, ArrayWritable value, Context context
     ) throws IOException, InterruptedException {
-
-
+        if(key == 1){
+          value = A1;
+        } else if (key == 2){
+          value = A2;
+        } else {
+          value = A3; //Doesn't Use A3 for Uncoded
+        }
+        product = multiplier(value,myX);
+        //set is disregarded for Uncoded
+        context.write(new ArrayWritable(set),new ArrayWritable(product));
     }
   }
-
-
 // Receives output of Mapper and returns execution count
   public static class Uncoded_red
     extends Reducer<ArrayWritable, ArrayWritable, LongWritable, ArrayWritable> {
               //KeyIn(Set)  ValueIn(List of A) ValueOut(Ex_time) ValueOut(AX)
-      public void reduce(ArrayWritable key, Iterable<IntWritable> values,
+      double[][] finalProd = new double[rowA][colX];
+      myTime = System.currentTimeMillis();
+
+      public void reduce(ArrayWritable set, Iterable<ArrayWritable> product,
                          Context context
                          ) throws IOException, InterruptedException {
 
@@ -66,7 +78,7 @@ public class Uncoded {
     myX = arrayMaker(rowX,colX);
     A1 = partition(true);
     A2 = partition(false);
-
+    A3 = addArray(A1,A2);
     double[][]product =  multiplier(A1,myX);
   /* //for debugging partition
     System.out.println(myA[0][0]);
@@ -129,7 +141,23 @@ public class Uncoded {
     }
     return temp;
   }
-
+  //adds 2 arrays together
+  public double[][] addArray(double[][] one, double[][] two) {
+      double[][] temp = new double[rowA/2][colA];
+      for(int i = 0; i < rowA/2; i++){
+        for(int j = 0; j < colA; j++){
+          temp[i][j] = one[i][j] + two[i][j];
+        }
+      }
+      return temp;
+  }
+  //appends 2 arrays together
+  public double[][] addArray(double[][] one, double[][] two) {
+      double[][] temp = new double[rowA][colA];
+      System.arraycopy(one, 0, temp, 0, one.length);
+      System.arraycopy(two, 0, temp, one.length, two.length);
+      return temp;
+  }
 
   //main
   public static void main(String[] args) throws Exception {
