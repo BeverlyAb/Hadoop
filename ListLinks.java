@@ -1,5 +1,3 @@
-//import org.apache.hadoop.*;
-
 import org.jsoup.Jsoup;
 import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
@@ -16,6 +14,8 @@ import java.io.*;
  */
 public class ListLinks {
     public static void main(String[] args) throws IOException {
+        long start = System.nanoTime();
+
         Validate.isTrue(args.length == 2, "usage: supply url to fetch");
         String url = args[0];
         String wordSearch = args[1];
@@ -28,27 +28,56 @@ public class ListLinks {
         Elements links = doc.select("a[href]");
 
         print("\nLinks: (%d)", links.size());
-        String linkName = "";
-        int i = 0;
+        List<String> myUrls = finder(links,wordSearch);
+        for(Element link :links) {
+          int rank = backCounter(link);
+          print("ranking for %s is %d",link.attr("abs:href"),rank);
+        }
 
-        for (Element link : links) {
-          linkName = link.attr("abs:href");
+        for(String single_url : myUrls){
+          print(single_url);
+        }
+        long dif = (System.nanoTime() - start);
+        print("my execution time =  " + Objects.toString(dif));
+    }
+  /*returns a list of urls that are associated to myLinks and contain  myWord" */
+   private static List<String> finder (Elements myLinks, String myWord) throws IOException {
+      String linkName = "";
+      List<String> myurls = new ArrayList<String>();
 
-            if(linkName != null && !linkName.isEmpty()){
+      for (Element mylink : myLinks) {
+        linkName = mylink.attr("abs:href");
+
+          if(linkName != null && !linkName.isEmpty()){
             Document linkDoc = Jsoup.connect(linkName).get();
-            String body  = linkDoc.text();
+            String body = linkDoc.text();
 
-            Pattern pattern = Pattern.compile(wordSearch);
+            Pattern pattern = Pattern.compile(myWord);
             Matcher matcher = pattern.matcher(body);
 
             if(matcher.find()) {
-              print("i = %d",i++);
-              print(" * a: <%s>  (%s)", link.attr("abs:href"), trim(link.text(), 35));
+              myurls.add(mylink.attr("abs:href"));
             }
-        }
+          }
       }
-    }
-    
+      return myurls;
+    } //finder
+
+    /* returns the number of links backlinked to myUrl
+      Ex)
+      (Source) -> (Target)
+      a -> b -> c
+      Count: a = 2, b = 1, c = 0
+    */
+    public static int backCounter(Element myUrl) throws IOException {
+        int myCount = 0;
+        String linkName = myUrl.attr("abs:href");
+        if(linkName != null && !linkName.isEmpty()){
+          Document linkDoc = Jsoup.connect(linkName).get();
+          myCount = (linkDoc.select("a[href]")).size();
+        }
+        return myCount;
+    }//backCounter
 
     private static void print(String msg, Object... args) {
         System.out.println(String.format(msg, args));
