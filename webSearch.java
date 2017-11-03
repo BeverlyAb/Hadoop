@@ -35,9 +35,15 @@ public class webSearch {
 
         int  i = 0;
         String [] pageWord = pgBlock.split(" ");
-        while(!myWord.equals(pageWord[i]) || (pageWord.length > i)){
+
+        System.out.print("myWord = ");System.out.println(myWord);
+        while(!myWord.equals(pageWord[i]) && (pageWord.length - 1> i)){
+          System.out.print(pageWord[i]);
+          System.out.print(": i = ");System.out.println(i);
+          System.out.print("length = ");System.out.println(pageWord.length);
           i++;
         }
+
         if(myWord.equals(pageWord[i])){
           context.write(new Text(url), new IntWritable(Integer.parseInt(back)));
         }
