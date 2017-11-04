@@ -37,10 +37,11 @@ public class ListLinks_noMR {
       back = url_back_pg[1];
       pgBlock = url_back_pg[2];
     //  print("line %s",line);
-      print("url %s back %s pgBlock %s",url,back,pgBlock);
+    //  print("url %s back %s pgBlock %s",url,back,pgBlock);
 
       String [] pageWord = pgBlock.split(" ");
-      while(!(myWord.toLowerCase()).equals(pageWord[i].toLowerCase()) && (pageWord.length -2> i)){
+      while(  !(myWord.toLowerCase()).equals(pageWord[i].toLowerCase()) &&
+              (pageWord.length -1 > i)){
         /*  System.out.print(pageWord[i].toLowerCase());
           System.out.print(": i = ");System.out.println(i);
           System.out.print("length = ");System.out.println(pageWord.length);
@@ -48,25 +49,38 @@ public class ListLinks_noMR {
       }
       ///contains word
       if((myWord.toLowerCase()).equals(pageWord[i].toLowerCase())) { //add url and back to list
-        for(int w = 0; pageWord.length > w; w++){
+      /*  for(int w = 0; pageWord.length > w; w++){
         System.out.print(pageWord[w]);  System.out.print(" ");
         }
-        System.out.println("");
+        System.out.println(""); */
         urlBack.put(Integer.parseInt(back),url);
       }
       i = 0;
   	}
 
   	br.close();
-
+    treeSort(urlBack);
+  //  demoSortMethod(urlBack);
     long dif = (System.nanoTime() - start);
     System.out.println("my execution time =  " + Objects.toString(dif));
-    treeSort(urlBack);
   }
-
-
   private static void treeSort(Map<Integer, String> map) {
 		TreeMap<Integer,String>mapSorted = new TreeMap<>(map);
+		mapSorted.descendingMap().forEach((key, value) -> {
+			System.out.println( key + ", "  + value);
+		});
+	}/*
+  private static void demoSortMethod(Map<Integer, String> mapSportsPersonality) {
+		// {Tennis=Federer, Cricket=Bradman, Golf=Woods, Basketball=Jordan, Boxer=Ali}
+		System.out.println("Orignal HashMap:" + mapSportsPersonality);
+
+		System.out.println("\n1. Sort HashMap by ascending keys: " );
+		TreeMap<Integer,String>mapSorted = new TreeMap<>(mapSportsPersonality);
+		mapSorted.forEach((key, value) -> {
+			System.out.println(key + ", " + value);
+		});
+
+		System.out.println("\n2. Sort HashMap by descending keys: " );
 		mapSorted.descendingMap().forEach((key, value) -> {
 			System.out.println( key + ", "  + value);
 		});
@@ -81,5 +95,5 @@ public class ListLinks_noMR {
             return s.substring(0, width-1) + ".";
         else
             return s;
-    }
+    }*/
 }
