@@ -25,7 +25,7 @@ public class webCrawl {
         for(Element link : links){
           myUrl = link.attr("abs:href");
           if(myUrl != null && !myUrl.isEmpty()){
-            Document linkDoc = Jsoup.connect(myUrl).get();
+            Document linkDoc = Jsoup.connect(myUrl).ignoreContentType(true).get();
             myCount = (linkDoc.select("a[href]")).size();
             body = linkDoc.title(); //title only
         //    body =  linkDoc.text().toString(); //full page document
