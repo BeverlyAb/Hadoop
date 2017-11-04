@@ -10,12 +10,11 @@ import java.util.regex.*;
 import java.io.IOException;
 import java.io.*;
 
-public class ListLinks {
+public class ListLinks_noMR {
   public static Map<Integer,String> urlBack = new TreeMap<Integer,String>();
 
   public static void main(String[] args) throws IOException {
     long start = System.nanoTime();
-
     Validate.isTrue(args.length == 2, "usage: supply url to fetch");
     String dataIn = args[0];
     String myWord = args[1];
@@ -30,40 +29,48 @@ public class ListLinks {
   	String line = null;
 
     int i = 0;
-    int j = 0;
     //parse and look for words
+
   	while ((line = br.readLine()) != null) {
       String [] url_back_pg =  line.split("##");
       url = url_back_pg[0];
       back = url_back_pg[1];
       pgBlock = url_back_pg[2];
-
     //  print("line %s",line);
-//      print("url %s back %s pgBlock %s",url,back,pgBlock);
+      print("url %s back %s pgBlock %s",url,back,pgBlock);
 
       String [] pageWord = pgBlock.split(" ");
-    //  while(!(myWord.toLowerCase()).equals(pageWord[i].toLowerCase()) && (pageWord.length -1> i)){
-  //      System.out.print(pageWord[i].toLowerCase());
-  //        System.out.print(": i = ");System.out.println(i);
-  //        System.out.print("length = ");System.out.println(pageWord.length);
-  //      i++;
-  //    }
-
-      //contains word
-      if((myWord.toLowerCase()).equals(pageWord[i])){ //add url and back to list
+      while(!(myWord.toLowerCase()).equals(pageWord[i].toLowerCase()) && (pageWord.length -2> i)){
+        /*  System.out.print(pageWord[i].toLowerCase());
+          System.out.print(": i = ");System.out.println(i);
+          System.out.print("length = ");System.out.println(pageWord.length);
+        */  i++;
+      }
+      ///contains word
+      if((myWord.toLowerCase()).equals(pageWord[i].toLowerCase())) { //add url and back to list
+        for(int w = 0; pageWord.length > w; w++){
+        System.out.print(pageWord[w]);  System.out.print(" ");
+        }
+        System.out.println("");
         urlBack.put(Integer.parseInt(back),url);
       }
+      i = 0;
   	}
+
   	br.close();
 
-    for(Integer key : urlBack.keySet()) {
-      System.out.println(urlBack.get(key));
-    }
     long dif = (System.nanoTime() - start);
     System.out.println("my execution time =  " + Objects.toString(dif));
-    }
+    treeSort(urlBack);
+  }
 
 
+  private static void treeSort(Map<Integer, String> map) {
+		TreeMap<Integer,String>mapSorted = new TreeMap<>(map);
+		mapSorted.descendingMap().forEach((key, value) -> {
+			System.out.println( key + ", "  + value);
+		});
+	}
 
     private static void print(String msg, Object... args) {
         System.out.println(String.format(msg, args));
