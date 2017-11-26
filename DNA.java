@@ -40,7 +40,10 @@ public class DNA {
       System.out.print(decToDNA(1)); */
 
       //ternary
-      System.out.println(ternary(16,4));
+    //  System.out.println(ternary(16,4));
+
+      //encoder
+      System.out.println(encode(550,8,"AGCTG"));
   }
 
   //converts dec to DNA representation
@@ -58,30 +61,36 @@ public class DNA {
   }
 
   // Algorithm 1 of report; returns encoded string of DNA
-  public static String encode(int myX, int l, String addr) {
+  public static String encode(double myX, int l, String addr) {
     int n = addr.length();
-    int deltaL = l;
     String encodeOut = "";
+    int t = 1;
 
-    if(deltaL >= n) {
-      int t = 1;
-      int y = myX;
+    if(l >= n) {
+      double y = myX;
 
-      while(y >= setAi(addr,t)*sGen(addr,deltaL - t)){
-        y = y - setAi(addr,t)*sGen(addr,deltaL - t);
+      while(y >= (setAi(addr,t-1).length()) * sGen(addr,l)[l-t -1]){ // starts[0]
+
+        y = y - (setAi(addr,t-1).length()) * sGen(addr,l)[l-t - 1];
         t++;
       }
-      int c = y / sGen(addr,deltaL - t);
-      int d = y % sGen(addr,deltaL - t);
-      encodeOut = encodeOut + addr.charAt(t-1) + setAi(addr,t).charAt(c+1);
-      return encodeOut + encode(d, deltaL - t, addr);
+      double c = y / (sGen(addr,l)[l-t -1]);
+      double d = y % (sGen(addr,l)[l-t - 1]);
+
+      if(t -1 > 0) {
+        encodeOut = encodeOut + addr.charAt(t-2);
+        System.out.println(addr.charAt(t-2));
+      }
+    //  System.out.println(setAi(addr,t-1).charAt((int)c));
+      encodeOut = encodeOut + setAi(addr,t-1).charAt((int)c);
+      return encodeOut + encode(d, l-t, addr);
     }
     else
-      return ternary(myX, deltaL);
+      return ternary(myX, l);
   } // encode
 
   // returns ternary rep. given base l
-  public static String ternary(int myX, int l) {
+  public static String ternary(double myX, int l) {
     String ternOut = "";
     double temp = myX;
     int coeff = 0;
