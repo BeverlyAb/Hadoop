@@ -57,7 +57,7 @@ public class DNA {
       return "X";
   }
 
-/*  // Algorithm 1 of report; returns encoded string of DNA
+  // Algorithm 1 of report; returns encoded string of DNA
   public static String encode(int myX, int l, String addr) {
     int n = addr.length();
     int deltaL = l;
@@ -76,37 +76,25 @@ public class DNA {
       encodeOut = encodeOut + addr.charAt(t-1) + setAi(addr,t).charAt(c+1);
       return encodeOut + encode(d, deltaL - t, addr);
     }
-
-  } // encode */
+    else
+      return ternary(myX, deltaL);
+  } // encode
 
   // returns ternary rep. given base l
   public static String ternary(int myX, int l) {
     String ternOut = "";
     double temp = myX;
-    int coeff = 1;
+    int coeff = 0;
 
-    for (int i = l - 1; i >= 0; i--) {
-      if(temp > coeff*Math.pow(3, i) ) {
-        while(temp - Math.pow(3, i) > coeff*Math.pow(3,i)) {
-          System.out.print("in temp "); System.out.print(temp);
-          System.out.print(" - "); System.out.print(coeff*Math.pow(3,i));
-          temp = temp - coeff*Math.pow(3, i);
+    for(int i = l -1; i >= 0; i--) {
+      if(temp >= Math.pow(3,i)){
+        while(temp >= Math.pow(3,i)) {
+          temp = temp - Math.pow(3,i);
           coeff++;
-          System.out.print(" = "); System.out.println(temp);
-          }
+        }
       }
-      else {
-        coeff = 0;
-      }
-      System.out.print("out temp "); System.out.print(temp);
-      System.out.print(" - "); System.out.print(coeff*Math.pow(3,i));
-      System.out.print(" = "); System.out.println(temp);
-
-      System.out.print(i + " : coeff : ");
-      System.out.println(coeff);
-
       ternOut = ternOut + decToDNA(coeff);
-      coeff = 1;
+      coeff = 0;
     }
     return ternOut;
 
