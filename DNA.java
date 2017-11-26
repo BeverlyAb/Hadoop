@@ -1,8 +1,13 @@
 import java.lang.Math.*; // pow
+import java.util.*;
 
 public class DNA {
   static String [] x = {"ATCG", "ATAG", "CTAG", "CTCG", "ATTG", "CTTG"};
   static String [] y = {"ACCG", "AAAG", "CAAG", "CCCG", "ATTT", "CTTT"};
+/*
+static String [] x = {"ATCGATCG", "ATCGATAG", "ATCGCTAG", "ATCGCTCG", "ATCGATTG", "ATCGCTTG"};
+static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT", "GATACTTT"};
+*/
 
   public static void main(String [] args) {
       //adddrChecker
@@ -22,28 +27,35 @@ public class DNA {
 
 
       //setAi
-  /*    System.out.println(allAddr[0]);
+    //  System.out.println(allAddr[0]);
+    allAddr[0] = "AGCTG";
       for(int i = 0; i < allAddr[0].length(); i++) {
         System.out.print(i + ": ");
         System.out.println(setAi(allAddr[0], i));
-      } */
-
-      //sGen
-/*      String addr = "AGCTG";
-      double [] allS = sGen(addr, 8);
-      for(int i = 0; i < allS.length; i++) {
-    System.out.print(i + ": ");
-        System.out.println(allS[i]);
       }
 
+      //sGen
+  /*   String addr = "AGCTG";
+    //String addr = "ACCGATCG";
+      double [] allS = sGen(addr,100);
+      for(int i = 0; i < allS.length; i++) {
+        System.out.print(i + ": ");
+        System.out.println(allS[i]);
+      } */
+
       //decToDNA
-      System.out.print(decToDNA(1)); */
+  //    System.out.print(decToDNA(1));
 
       //ternary
     //  System.out.println(ternary(16,4));
 
       //encoder
-      System.out.println(encode(550,8,"AGCTG"));
+    //  for(int i = 0; i < allAddr.length; i++){
+//System.out.println(encode(550,8,allAddr[i]));
+        System.out.println(encode(550,100,"AGCTG"));
+//          encode(550,50,allAddr[0]);
+//}
+
   }
 
   //converts dec to DNA representation
@@ -64,11 +76,11 @@ public class DNA {
   public static String encode(double myX, int l, String addr) {
     int n = addr.length();
     String encodeOut = "";
-    int t = 1;
+    int t;
 
     if(l >= n) {
       double y = myX;
-
+      t = 1;
       while(y >= (setAi(addr,t-1).length()) * sGen(addr,l)[l-t -1]){ // starts[0]
 
         y = y - (setAi(addr,t-1).length()) * sGen(addr,l)[l-t - 1];
@@ -76,14 +88,15 @@ public class DNA {
       }
       double c = y / (sGen(addr,l)[l-t -1]);
       double d = y % (sGen(addr,l)[l-t - 1]);
-
+      System.out.println(d);
       if(t -1 > 0) {
         encodeOut = encodeOut + addr.charAt(t-2);
-        System.out.println(addr.charAt(t-2));
+      //  System.out.println(addr.charAt(t-2));
       }
     //  System.out.println(setAi(addr,t-1).charAt((int)c));
       encodeOut = encodeOut + setAi(addr,t-1).charAt((int)c);
-      return encodeOut + encode(d, l-t, addr);
+    //  System.out.println((int)d);
+      return encodeOut + encode((int)d, l-t, addr);
     }
     else
       return ternary(myX, l);
@@ -119,6 +132,28 @@ public class DNA {
       if(ai != in.charAt(i) && 'G'!= in.charAt(i) )
         setOut = setOut + in.charAt(i);
     }
+    int [] temp = new int [setOut.length()];
+  /*  //System.out.print("temp = ");
+    for(int i = 0; i < setOut.length(); i++){
+      if(setOut.charAt(i) == 'A')
+        temp[i] = 0;
+      else if (setOut.charAt(i)=='T')
+        temp[i] = 1;
+      else if(setOut.charAt(i) == 'C')
+          temp[i] = 2;
+      else if (setOut.charAt(i)=='G')
+          temp[i] = 3;
+      else //invalid
+          temp[i] = -1;
+      //System.out.print(temp[i]);
+    }
+      Arrays.sort(temp);
+
+    setOut = ""; */
+/*for(int i = 0; i < temp.length; i++){
+    //  setOut = setOut + decToDNA(temp[i]);
+      System.out.print(setOut.charAt(i));
+}*/
     return setOut;
   }
 
