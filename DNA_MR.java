@@ -1,0 +1,215 @@
+import java.lang.Math.*; // pow
+import java.util.*;
+import java.io.IOException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class DNA_MR {
+  public static int myInt = 0;
+  public static int l = 15;
+  //encodes
+  public static class encodeMapper extends Mapper<Object, Text, Text, Text>
+   {
+     private String index = "";
+     private String addr = "";
+     private String encodeOut = "";
+
+     public void map(Object key_index, Text database, Context context) throws IOException, InterruptedException
+     {
+       String [] index_addr = database.toString().split("##");
+       index = index_addr[0];
+       addr = index_addr[1];
+       encodeOut = addr + (encode(myInt, l ,addr)) + addr;
+       if(addrChecker(encodeOut,addr) && GCchecker(encodeOut))
+        context.write(new Text(addr),new Text(encodeOut));
+    }
+  }
+
+  //only returns encoded sequences with proper GC content
+  public static class gcReducer extends Reducer<Text,Text,Text, Text>
+  {
+    public void reduce(Text key_addr, Iterable<Text> encoded_list, Context context) throws IOException, InterruptedException
+    {
+      for(Text encodeOut : encoded_list){
+        //if(addrChecker((String)encodeOut,(String)key_addr ))// && GCchecker(encoded))
+          context.write(key_addr, encodeOut);
+      }
+    }
+ }
+
+ public static void main(String args[])throws Exception
+   {
+     //myInt = Integer.parseInt(args[2]);
+     String word = args[2];
+
+     Configuration conf = new Configuration();
+     Job job = Job.getInstance(conf, "encoder");
+
+     job.setJarByClass(DNA_MR.class);
+     job.setMapperClass(encodeMapper.class);
+     job.setReducerClass(gcReducer.class);
+
+     job.setMapOutputKeyClass(Text.class);
+     job.setMapOutputValueClass(Text.class);
+
+     job.setOutputKeyClass(Text.class);
+     job.setOutputValueClass(Text.class);
+
+     FileInputFormat.addInputPath(job, new Path(args[0]));
+     FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+     System.exit(job.waitForCompletion(true) ? 0 : 1);
+   }
+
+  //converts dec to DNA representation
+  public static String decToDNA(int in) {
+    if(in == 0)
+      return "A";
+    else if (in == 1)
+      return "T";
+    else if (in == 2)
+      return "C";
+    else if (in == 3)
+      return "G";
+    else //invalid
+      return "X";
+  }
+
+// Algorithm 1 of report; returns encoded string of DNA
+  public static String encode(double myX, int l, String addr) {
+    int n = addr.length();
+    String encodeOut = "";
+    int t;
+
+    if(l >= n) {
+      double y = myX;
+      t = 1;
+      while(y >= (setAi(addr,t-1).length()) * sGen(addr,l)[l-t -1]){ // starts[0]
+
+        y = y - (setAi(addr,t-1).length()) * sGen(addr,l)[l-t - 1];
+        t++;
+      }
+      double c = y / (sGen(addr,l)[l-t -1]);
+      double d = y % (sGen(addr,l)[l-t - 1]);
+//System.out.println(d);
+      if(t -1 > 0) {
+    //    System.out.print(("t: ")); System.out.println(addr.charAt(t-2));
+        encodeOut = encodeOut + addr.charAt(t-2);
+      //  System.out.println(addr.charAt(t-2));
+      }
+    //  System.out.println(setAi(addr,t-1).charAt((int)c));
+      encodeOut = encodeOut + setAi(addr,t-1).charAt((int)c);
+    //  System.out.println((int)d);
+      encodeOut = encodeOut + encode((int)d, l-t, addr);
+      return encodeOut;
+    }
+    else
+      return ternary(myX, l);
+  } // encode
+
+  // returns ternary rep. given base l
+  public static String ternary(double myX, int l) {
+    String ternOut = "";
+    double temp = myX;
+    int coeff = 0;
+
+    for(int i = l -1; i >= 0; i--) {
+      if(temp >= Math.pow(3,i)){
+        while(temp >= Math.pow(3,i)) {
+          temp = temp - Math.pow(3,i);
+          coeff++;
+        }
+      }
+      ternOut = ternOut + decToDNA(coeff);
+      coeff = 0;
+    }
+    return ternOut;
+
+  } // ternary
+
+  //returns set based on ai,
+  public static String setAi(String in, int index){
+    char ai = in.charAt(index);
+
+    String setOut = "";
+    for(int i = 0; i < in.length(); i++) {
+      //exclude G due to generality
+      if(ai != in.charAt(i) && 'G'!= in.charAt(i) )
+        setOut = setOut + in.charAt(i);
+    }
+    return setOut;
+  }
+
+  //generates Sn,l based on Fig. 1 from report
+  public static double [] sGen(String addr, int l){
+    double [] myS = new double[l-1];
+    double sum = 0;
+    String set = "";
+
+    for(int i = 1; i < l; i++){
+        if(i < addr.length()) {
+          myS[i-1] = Math.pow(3,i);
+        }
+        else {
+          int j = 1;
+          while(j < addr.length()) {
+            set = setAi(addr, j-1);
+            sum = sum + set.length() * myS[i-1-j];
+            j++;
+          }
+          myS[i-1] = sum;
+          sum = 0;
+        }
+    }
+    return myS;
+  }
+
+  //checks constraint 1:
+  //checks if the info. part of DNA contains generated address
+  // format: addr [5] + info [20] + addr [5]
+  public static boolean addrChecker(String in, String addr){
+    int addrLen = addr.length();
+    int inLen = in.length();
+    String window = "";
+
+    int endOfInfo = inLen - 2 * addrLen;
+    for (int i = addrLen; i < endOfInfo + addrLen; i++) {
+      window = in.substring(i,i +addrLen);
+    //  System.out.println(window);
+      if(window.equals(addr))
+        return false;
+    }
+    return true;
+
+  } //addrChecker
+
+  //checks constraint 2: GC content
+  public static boolean GCchecker(String in){
+      double count = 0;
+      for (int i = 0; i < in.length(); i++) {
+        if(in.charAt(i) == 'C' || in.charAt(i) == 'G')
+          count++;
+      }
+  //    System.out.println((count / in.length()));
+      return  ((count / in.length()) >= 0.48 &&
+              (count / in.length()) <= 0.52 );
+  } //GCchecker
+
+  //converts ascii to decimal
+  public static int[] asciiToDec(String in){
+    int [] dec = new int[in.length()];
+
+    for(int i = 0; i < in.length(); i++){
+      dec[i] = in.charAt(i) - '0' + 48;
+    }
+    return dec;
+  }
+}
