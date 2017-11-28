@@ -13,8 +13,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class DNA_MR {
-  public static int myInt = 0;
-  public static int l = 19; //19
+  public static int [] myInt;
+  public static String word = "";
+  public static int l = 17; //17 overall seq = 33
     //encodes
   public static class encodeMapper extends Mapper<Object, Text, Text, Text>
    {
@@ -27,10 +28,11 @@ public class DNA_MR {
        String [] index_addr = database.toString().split("##");
        index = index_addr[0];
        addr = index_addr[1];
-       encodeOut = addr + (encode(myInt, l ,addr)) + addr;
-       System.out.print(addr + '\t'); System.out.println(encodeOut);
-
-       context.write(new Text(addr),new Text(encodeOut));
+       for (int i = 0; i < word.length(); i ++) {
+         encodeOut = addr + (encode(myInt[i], l ,addr)) + addr + '\t' + word.charAt(i);
+         System.out.print(addr + '\t'); System.out.println(encodeOut);
+         context.write(new Text(addr),new Text(encodeOut));
+       }
     }
   }
 
@@ -39,17 +41,20 @@ public class DNA_MR {
   {
     public void reduce(Text key_addr, Iterable<Text> encoded_list, Context context) throws IOException, InterruptedException
     {
+      String sorter = "";
       for(Text encodeOut : encoded_list){
-        if(addrChecker(encodeOut, key_addr) && GCchecker(encodeOut))
+        if(addrChecker(encodeOut, key_addr) && GCchecker(encodeOut)) {
+          sorter = encodeOut.toString().charAt(encodeOut.length() -1); // get Char only
           context.write(key_addr, encodeOut);
+        }
       }
     }
  }
 
  public static void main(String args[])throws Exception
    {
-     myInt = Integer.parseInt(args[2]);
-     //String word = args[2];
+     word = args[2];
+     myInt = asciiToDec(word);
 
      Configuration conf = new Configuration();
      Job job = Job.getInstance(conf, "encoder");
@@ -94,7 +99,6 @@ public class DNA_MR {
       double y = myX;
       t = 1;
       while(y >= (setAi(addr,t-1).length()) * sGen(addr,l)[l-t -1]){ // starts[0]
-
         y = y - (setAi(addr,t-1).length()) * sGen(addr,l)[l-t - 1];
         t++;
       }
@@ -151,11 +155,11 @@ public class DNA_MR {
 
   //generates Sn,l based on Fig. 1 from report
   public static double [] sGen(String addr, int l){
-    double [] myS = new double[l-1];
+    double [] myS = new double[l];
     double sum = 0;
     String set = "";
 
-    for(int i = 1; i < l; i++){
+    for(int i = 1; i <= l; i++){
         if(i < addr.length()) {
           myS[i-1] = Math.pow(3,i);
         }
@@ -178,7 +182,7 @@ public class DNA_MR {
   // format: addr [5] + info [20] + addr [5]
   public static boolean addrChecker(Text in, Text addr){
     int addrLen = addr.toString().length();
-    int inLen = in.toString().length();
+    int inLen = in.toString().length() -2;
     String window = "";
 
     int endOfInfo = inLen - 2 * addrLen;
@@ -195,7 +199,7 @@ public class DNA_MR {
   //checks constraint 2: GC content
   public static boolean GCchecker(Text in){
       double count = 0;
-      for (int i = 0; i < in.toString().length(); i++) {
+      for (int i = 0; i < in.toString().length() - 2; i++) { //exclude tab and Letter
         if(in.toString().charAt(i) == 'C' || in.toString().charAt(i) == 'G')
           count++;
       }
