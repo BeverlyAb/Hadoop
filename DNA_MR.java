@@ -41,10 +41,8 @@ public class DNA_MR {
   {
     public void reduce(Text key_addr, Iterable<Text> encoded_list, Context context) throws IOException, InterruptedException
     {
-      String sorter = "";
       for(Text encodeOut : encoded_list){
         if(addrChecker(encodeOut, key_addr) && GCchecker(encodeOut)) {
-          sorter = encodeOut.toString().charAt(encodeOut.length() -1); // get Char only
           context.write(key_addr, encodeOut);
         }
       }
