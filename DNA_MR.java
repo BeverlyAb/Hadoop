@@ -14,8 +14,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class DNA_MR {
   public static int myInt = 0;
-  public static int l = 15;
-  //encodes
+  public static int l = 19; //19
+    //encodes
   public static class encodeMapper extends Mapper<Object, Text, Text, Text>
    {
      private String index = "";
@@ -28,8 +28,9 @@ public class DNA_MR {
        index = index_addr[0];
        addr = index_addr[1];
        encodeOut = addr + (encode(myInt, l ,addr)) + addr;
-       if(addrChecker(encodeOut,addr) && GCchecker(encodeOut))
-        context.write(new Text(addr),new Text(encodeOut));
+       System.out.print(addr + '\t'); System.out.println(encodeOut);
+
+       context.write(new Text(addr),new Text(encodeOut));
     }
   }
 
@@ -39,7 +40,7 @@ public class DNA_MR {
     public void reduce(Text key_addr, Iterable<Text> encoded_list, Context context) throws IOException, InterruptedException
     {
       for(Text encodeOut : encoded_list){
-        //if(addrChecker((String)encodeOut,(String)key_addr ))// && GCchecker(encoded))
+        if(addrChecker(encodeOut, key_addr) && GCchecker(encodeOut))
           context.write(key_addr, encodeOut);
       }
     }
@@ -47,8 +48,8 @@ public class DNA_MR {
 
  public static void main(String args[])throws Exception
    {
-     //myInt = Integer.parseInt(args[2]);
-     String word = args[2];
+     myInt = Integer.parseInt(args[2]);
+     //String word = args[2];
 
      Configuration conf = new Configuration();
      Job job = Job.getInstance(conf, "encoder");
@@ -175,16 +176,16 @@ public class DNA_MR {
   //checks constraint 1:
   //checks if the info. part of DNA contains generated address
   // format: addr [5] + info [20] + addr [5]
-  public static boolean addrChecker(String in, String addr){
-    int addrLen = addr.length();
-    int inLen = in.length();
+  public static boolean addrChecker(Text in, Text addr){
+    int addrLen = addr.toString().length();
+    int inLen = in.toString().length();
     String window = "";
 
     int endOfInfo = inLen - 2 * addrLen;
     for (int i = addrLen; i < endOfInfo + addrLen; i++) {
-      window = in.substring(i,i +addrLen);
+      window = in.toString().substring(i,i +addrLen);
     //  System.out.println(window);
-      if(window.equals(addr))
+      if(window.equals(addr.toString()))
         return false;
     }
     return true;
@@ -192,15 +193,15 @@ public class DNA_MR {
   } //addrChecker
 
   //checks constraint 2: GC content
-  public static boolean GCchecker(String in){
+  public static boolean GCchecker(Text in){
       double count = 0;
-      for (int i = 0; i < in.length(); i++) {
-        if(in.charAt(i) == 'C' || in.charAt(i) == 'G')
+      for (int i = 0; i < in.toString().length(); i++) {
+        if(in.toString().charAt(i) == 'C' || in.toString().charAt(i) == 'G')
           count++;
       }
   //    System.out.println((count / in.length()));
-      return  ((count / in.length()) >= 0.48 &&
-              (count / in.length()) <= 0.52 );
+      return  ((count / in.toString().length()) >= 0.48 &&
+              (count / in.toString().length()) <= 0.52 );
   } //GCchecker
 
   //converts ascii to decimal
