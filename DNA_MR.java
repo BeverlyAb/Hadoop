@@ -15,7 +15,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 public class DNA_MR {
   public static int [] myInt;
   public static String word = "";
-  public static int l = 17; //17 overall seq = 33
+  public static int l = 5; //17 overall seq = 33
     //encodes
   public static class encodeMapper extends Mapper<Object, Text, Text, Text>
    {
@@ -30,7 +30,6 @@ public class DNA_MR {
        addr = index_addr[1];
        for (int i = 0; i < word.length(); i ++) {
          encodeOut = addr + (encode(myInt[i], l ,addr)) + addr;
-      //   System.out.print(word.charAt(i) + "\t" + addr + "\t"); System.out.println(encodeOut);
          context.write(new Text(word.charAt(i) + "\t" + addr),new Text(encodeOut));
        }
     }
@@ -72,21 +71,6 @@ public class DNA_MR {
 
      System.exit(job.waitForCompletion(true) ? 0 : 1);
    }
-
-  //converts dec to DNA representation
-  public static String decToDNA(int in) {
-    if(in == 0)
-      return "A";
-    else if (in == 1)
-      return "T";
-    else if (in == 2)
-      return "C";
-    else if (in == 3)
-      return "G";
-    else //invalid
-      return "X";
-  }
-
 // Algorithm 1 of report; returns encoded string of DNA
   public static String encode(double myX, int l, String addr) {
     int n = addr.length();
@@ -102,15 +86,11 @@ public class DNA_MR {
       }
       double c = y / (sGen(addr,l)[l-t -1]);
       double d = y % (sGen(addr,l)[l-t - 1]);
-//System.out.println(d);
-      if(t -1 > 0) {
-    //    System.out.print(("t: ")); System.out.println(addr.charAt(t-2));
+
+      if(t -1 > 0)
         encodeOut = encodeOut + addr.charAt(t-2);
-      //  System.out.println(addr.charAt(t-2));
-      }
-    //  System.out.println(setAi(addr,t-1).charAt((int)c));
+
       encodeOut = encodeOut + setAi(addr,t-1).charAt((int)c);
-    //  System.out.println((int)d);
       encodeOut = encodeOut + encode((int)d, l-t, addr);
       return encodeOut;
     }
@@ -118,13 +98,25 @@ public class DNA_MR {
       return ternary(myX, l);
   } // encode
 
+  //converts dec to DNA representation
+  public static String decToDNA(int in) {
+    if(in == 0)
+      return "A";
+    else if (in == 1)
+      return "T";
+    else if (in == 2)
+      return "C";
+    else //invalid
+      return "X";
+  }
+
   // returns ternary rep. given base l
   public static String ternary(double myX, int l) {
     String ternOut = "";
     double temp = myX;
     int coeff = 0;
 
-    for(int i = l -1; i >= 0; i--) {
+    for(int i = l - 1; i >= 0; i--) {
       if(temp >= Math.pow(3,i)){
         while(temp >= Math.pow(3,i)) {
           temp = temp - Math.pow(3,i);
@@ -135,7 +127,6 @@ public class DNA_MR {
       coeff = 0;
     }
     return ternOut;
-
   } // ternary
 
   //returns set based on ai,
@@ -184,24 +175,21 @@ public class DNA_MR {
     String window = "";
 
     int endOfInfo = inLen - 2 * addrLen;
-    for (int i = addrLen + 2; i < endOfInfo + addrLen; i++) {
+    for (int i = addrLen + 2; i < endOfInfo + addrLen; i++) {//no tab && letter
       window = in.toString().substring(i,i +addrLen);
-    //  System.out.println(window);
       if(window.equals(addr.toString()))
         return false;
     }
     return true;
-
   } //addrChecker
 
   //checks constraint 2: GC content
   public static boolean GCchecker(Text in){
       double count = 0;
-      for (int i = 0; i < in.toString().length(); i++) { //exclude tab and Letter
+      for (int i = 0; i < in.toString().length(); i++) {
         if(in.toString().charAt(i) == 'C' || in.toString().charAt(i) == 'G')
           count++;
       }
-  //    System.out.println((count / in.length()));
       return  ((count / in.toString().length()) >= 0.48 &&
               (count / in.toString().length()) <= 0.52 );
   } //GCchecker

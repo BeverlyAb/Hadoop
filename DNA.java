@@ -35,8 +35,8 @@ static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT"
       }
 */
       //sGen
-     String addr = "AGCTG";
-  //  String addr = "ACCGATCG";
+  //   String addr = "AGCTG";
+    String addr = "ACCGATCG";
       double [] allS = sGen(addr,8);
       for(int i = 0; i < allS.length; i++) {
         System.out.print(i + ": ");
@@ -52,15 +52,15 @@ static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT"
       //encoder
   //    for(int i = 0; i < allAddr.length; i++){
   //      System.out.println(encode(100000,13,allAddr[i]));
-        System.out.println(encode(550,8,"AGCTG"));
+        System.out.println(encode(550,8,"ACCGATCG"));
 //          encode(550,50,allAddr[0]);
 //}
 
 //asciiToDec
-  int [] test = asciiToDec("hello");
+/*  int [] test = asciiToDec("hello");
   for(int i = 0; i < test.length; i++)
     System.out.println(test[i]);
-  }
+*/  }
 
   //converts dec to DNA representation
   public static String decToDNA(int in) {
@@ -77,36 +77,35 @@ static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT"
   }
 
   // Algorithm 1 of report; returns encoded string of DNA
-  public static String encode(double myX, int l, String addr) {
-    int n = addr.length();
-    String encodeOut = "";
-    int t;
+    public static String encode(double myX, int l, String addr) {
+      int n = addr.length();
+      String encodeOut = "";
+      int t;
 
-    if(l >= n) {
-      double y = myX;
-      t = 1;
-      while(y >= (setAi(addr,t-1).length()) * sGen(addr,l)[l-t -1]){ // starts[0]
-
-        y = y - (setAi(addr,t-1).length()) * sGen(addr,l)[l-t - 1];
-        t++;
+      if(l >= n) {
+        double y = myX;
+        t = 1;
+        while(y >= (setAi(addr,t-1).length()) * sGen(addr,l)[l-t -1]){ // starts[0]
+          y = y - (setAi(addr,t-1).length()) * sGen(addr,l)[l-t - 1];
+          t++;
+        }
+        double c = y / (sGen(addr,l)[l-t -1]);
+        double d = y % (sGen(addr,l)[l-t - 1]);
+  //System.out.println(d);
+        if(t -1 > 0) {
+      //    System.out.print(("t: ")); System.out.println(addr.charAt(t-2));
+          encodeOut = encodeOut + addr.charAt(t-2);
+        //  System.out.println(addr.charAt(t-2));
+        }
+      //  System.out.println(setAi(addr,t-1).charAt((int)c));
+        encodeOut = encodeOut + setAi(addr,t-1).charAt((int)c);
+      //  System.out.println((int)d);
+        encodeOut = encodeOut + encode((int)d, l-t, addr);
+        return encodeOut;
       }
-      double c = y / (sGen(addr,l)[l-t -1]);
-      double d = y % (sGen(addr,l)[l-t - 1]);
-//System.out.println(d);
-      if(t -1 > 0) {
-        System.out.print(("t: ")); System.out.println(addr.charAt(t-2));
-        encodeOut = encodeOut + addr.charAt(t-2);
-      //  System.out.println(addr.charAt(t-2));
-      }
-    //  System.out.println(setAi(addr,t-1).charAt((int)c));
-      encodeOut = encodeOut + setAi(addr,t-1).charAt((int)c);
-    //  System.out.println((int)d);
-      encodeOut = encodeOut + encode((int)d, l-t, addr);
-      return encodeOut;
-    }
-    else
-      return ternary(myX, l);
-  } // encode
+      else
+        return ternary(myX, l);
+    } // encode
 
   // returns ternary rep. given base l
   public static String ternary(double myX, int l) {
