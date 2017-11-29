@@ -29,9 +29,9 @@ public class DNA_MR {
        index = index_addr[0];
        addr = index_addr[1];
        for (int i = 0; i < word.length(); i ++) {
-         encodeOut = addr + (encode(myInt[i], l ,addr)) + addr + '\t' + word.charAt(i);
-         System.out.print(addr + '\t'); System.out.println(encodeOut);
-         context.write(new Text(addr),new Text(encodeOut));
+         encodeOut = addr + (encode(myInt[i], l ,addr)) + addr;
+      //   System.out.print(word.charAt(i) + "\t" + addr + "\t"); System.out.println(encodeOut);
+         context.write(new Text(word.charAt(i) + "\t" + addr),new Text(encodeOut));
        }
     }
   }
@@ -153,11 +153,11 @@ public class DNA_MR {
 
   //generates Sn,l based on Fig. 1 from report
   public static double [] sGen(String addr, int l){
-    double [] myS = new double[l];
+    double [] myS = new double[l-1];
     double sum = 0;
     String set = "";
 
-    for(int i = 1; i <= l; i++){
+    for(int i = 1; i < l; i++){
         if(i < addr.length()) {
           myS[i-1] = Math.pow(3,i);
         }
@@ -179,12 +179,12 @@ public class DNA_MR {
   //checks if the info. part of DNA contains generated address
   // format: addr [5] + info [20] + addr [5]
   public static boolean addrChecker(Text in, Text addr){
-    int addrLen = addr.toString().length();
-    int inLen = in.toString().length() -2;
+    int addrLen = addr.toString().length() - 2;
+    int inLen = in.toString().length();
     String window = "";
 
     int endOfInfo = inLen - 2 * addrLen;
-    for (int i = addrLen; i < endOfInfo + addrLen; i++) {
+    for (int i = addrLen + 2; i < endOfInfo + addrLen; i++) {
       window = in.toString().substring(i,i +addrLen);
     //  System.out.println(window);
       if(window.equals(addr.toString()))
@@ -197,7 +197,7 @@ public class DNA_MR {
   //checks constraint 2: GC content
   public static boolean GCchecker(Text in){
       double count = 0;
-      for (int i = 0; i < in.toString().length() - 2; i++) { //exclude tab and Letter
+      for (int i = 0; i < in.toString().length(); i++) { //exclude tab and Letter
         if(in.toString().charAt(i) == 'C' || in.toString().charAt(i) == 'G')
           count++;
       }

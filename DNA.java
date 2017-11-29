@@ -28,20 +28,20 @@ static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT"
 
       //setAi
     //  System.out.println(allAddr[0]);
-    allAddr[0] = "AGCTG";
+  /*  allAddr[0] = "AGCTG";
       for(int i = 0; i < allAddr[0].length(); i++) {
         System.out.print(i + ": ");
         System.out.println(setAi(allAddr[0], i));
       }
-
+*/
       //sGen
-  /*   String addr = "AGCTG";
-    //String addr = "ACCGATCG";
-      double [] allS = sGen(addr,100);
+     String addr = "AGCTG";
+  //  String addr = "ACCGATCG";
+      double [] allS = sGen(addr,8);
       for(int i = 0; i < allS.length; i++) {
         System.out.print(i + ": ");
         System.out.println(allS[i]);
-      } */
+      }
 
       //decToDNA
   //    System.out.print(decToDNA(1));
@@ -50,12 +50,16 @@ static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT"
     //  System.out.println(ternary(16,4));
 
       //encoder
-    //  for(int i = 0; i < allAddr.length; i++){
-//System.out.println(encode(550,8,allAddr[i]));
-        System.out.println(encode(550,100,"AGCTG"));
+  //    for(int i = 0; i < allAddr.length; i++){
+  //      System.out.println(encode(100000,13,allAddr[i]));
+        System.out.println(encode(550,8,"AGCTG"));
 //          encode(550,50,allAddr[0]);
 //}
 
+//asciiToDec
+  int [] test = asciiToDec("hello");
+  for(int i = 0; i < test.length; i++)
+    System.out.println(test[i]);
   }
 
   //converts dec to DNA representation
@@ -88,15 +92,17 @@ static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT"
       }
       double c = y / (sGen(addr,l)[l-t -1]);
       double d = y % (sGen(addr,l)[l-t - 1]);
-      System.out.println(d);
+//System.out.println(d);
       if(t -1 > 0) {
+        System.out.print(("t: ")); System.out.println(addr.charAt(t-2));
         encodeOut = encodeOut + addr.charAt(t-2);
       //  System.out.println(addr.charAt(t-2));
       }
     //  System.out.println(setAi(addr,t-1).charAt((int)c));
       encodeOut = encodeOut + setAi(addr,t-1).charAt((int)c);
     //  System.out.println((int)d);
-      return encodeOut + encode((int)d, l-t, addr);
+      encodeOut = encodeOut + encode((int)d, l-t, addr);
+      return encodeOut;
     }
     else
       return ternary(myX, l);
@@ -122,7 +128,7 @@ static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT"
 
   } // ternary
 
-  //returns set based on ai, ***might have to sort to ascending order***
+  //returns set based on ai,
   public static String setAi(String in, int index){
     char ai = in.charAt(index);
 
@@ -148,7 +154,6 @@ static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT"
       //System.out.print(temp[i]);
     }
       Arrays.sort(temp);
-
     setOut = ""; */
 /*for(int i = 0; i < temp.length; i++){
     //  setOut = setOut + decToDNA(temp[i]);
@@ -224,5 +229,13 @@ static String [] y = {"GATAACCG", "GATAAAAG", "GATACAAG", "GATACCCG", "GATAATTT"
               (count / in.length()) <= 0.52 );
   } //GCchecker
 
+  //converts ascii to decimal
+  public static int[] asciiToDec(String in){
+    int [] dec = new int[in.length()];
 
+    for(int i = 0; i < in.length(); i++){
+      dec[i] = in.charAt(i) - '0' + 48;
+    }
+    return dec;
+  }
 }
